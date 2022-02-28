@@ -9,7 +9,7 @@ from redbot.core.utils.chat_formatting import box, inline, pagify
 from tsutils.cog_settings import CogSettings
 from tsutils.user_interaction import get_user_confirmation
 
-logger = logging.getLogger('red.misc-cogs.globaladmin')
+logger = logging.getLogger('red.core-cogs.globaladmin')
 
 
 class GlobalAdmin(commands.Cog):

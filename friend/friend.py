@@ -5,7 +5,7 @@ import discord
 from redbot.core import Config, commands
 from redbot.core.utils.chat_formatting import box, pagify
 
-logger = logging.getLogger('red.misc-cogs.friend')
+logger = logging.getLogger('red.core-cogs.friend')
 
 
 class Friend(commands.Cog):

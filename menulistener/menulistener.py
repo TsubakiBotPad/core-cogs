@@ -14,7 +14,7 @@ from discordmenu.reaction_filter import ValidEmojiReactionFilter, BotAuthoredMes
 from redbot.core import Config, commands, checks
 from redbot.core.utils.chat_formatting import box, pagify
 
-logger = logging.getLogger('red.misc-cogs.menulistener')
+logger = logging.getLogger('red.core-cogs.menulistener')
 
 
 # TODO: Put these in discordmenu for use as superclasses

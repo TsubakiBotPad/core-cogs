@@ -2,6 +2,6 @@
   "author": [
     "The Tsubaki Bot Team"
   ],
-  "description": "A collection of miscellaneous moderation and general use cogs.",
-  "short": "The Tsubotki Team General Use Cogs."
+  "description": "A collection of core cogs which other cogs rely on.",
+  "short": "The Tsubotki Team Core Cogs."
 }
