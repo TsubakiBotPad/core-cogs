@@ -29,7 +29,6 @@ DEFAULT_INSULTS = {
     ],
     'insults': [
         'You are garbage.',
-        'Kill yourself.',
     ]
 }
 LOVE_FILE = "data/donations/love.json"
