@@ -1,10 +1,11 @@
 import logging
 from copy import deepcopy
 from io import BytesIO
-from typing import Any, Mapping, Tuple, Protocol, Optional, Sequence
+from typing import Any, Mapping, Tuple, Protocol, Optional
 
 import discord
 from discordmenu.embed.menu import EmbedMenu
+from tsutils.menu.components.panes import MenuPanes
 
 from menulistener.errors import CogNotLoaded, MissingImsMenuType, InvalidImsMenuType
 from discordmenu.embed.emoji import EmbedMenuEmojiConfig
@@ -24,26 +25,16 @@ class MenuObject(Protocol):
         ...
 
 
-class ChildDataCallbackProtocol(Protocol):
-    def __call__(self, __ims, __emoji, **kwargs) -> Tuple[Optional[dict], str]: ...
-
-
-class MenuPanes(Protocol):
-    @classmethod
-    def emoji_names(cls) -> Sequence[str]:
-        ...
-
-    @classmethod
-    def get_child_data_func(cls, emoji: str) -> Optional[ChildDataCallbackProtocol]:
-        """Only defined for menus that support having children"""
-        ...
-
-
 class MenuEnabledCog(Protocol):
     menu_map: Mapping[str, Tuple[MenuObject, MenuPanes]]
 
     def get_menu_default_data(self) -> Mapping[str, Any]:
         ...
+
+
+class DiscordRatelimitFilter(logging.Filter):
+    def filter(self, record):
+        return not record.getMessage().startswith('We are being rate limited.')
 
 
 class MenuListener(commands.Cog):
@@ -58,6 +49,14 @@ class MenuListener(commands.Cog):
 
         self.menu_map = {}  # type: Mapping[str, Tuple[str, MenuObject, MenuPanes]]
         self.completed = False
+
+        self.filter = DiscordRatelimitFilter()
+        self.httplogger = logging.getLogger('discord.http')
+
+        self.httplogger.addFilter(self.filter)
+
+    def cog_unload(self):
+        self.httplogger.removeFilter(self.filter)
 
     async def red_get_data_for_user(self, *, user_id):
         """Get a user's personal data."""
