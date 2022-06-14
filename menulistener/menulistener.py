@@ -8,7 +8,7 @@ from discordmenu.embed.menu import EmbedMenu
 from tsutils.menu.components.panes import MenuPanes
 
 from menulistener.errors import CogNotLoaded, MissingImsMenuType, InvalidImsMenuType
-from discordmenu.embed.emoji import EmbedMenuEmojiConfig
+from discordmenu.embed.emoji import DEFAULT_EMOJI_LIST
 from discordmenu.intra_message_state import IntraMessageState
 from discordmenu.reaction_filter import ValidEmojiReactionFilter, BotAuthoredMessageReactionFilter, \
     MessageOwnerReactionFilter, FriendReactionFilter, NotPosterEmojiReactionFilter
@@ -145,7 +145,7 @@ class MenuListener(commands.Cog):
 
         # determine if this is potentially a valid reaction prior to doing any network call:
         # this is true if it's a default emoji or in any of our global panes emoji lists
-        if emoji_clicked in EmbedMenuEmojiConfig().to_list():
+        if emoji_clicked in DEFAULT_EMOJI_LIST:
             return emoji_clicked
         for menu_type, classes in self.menu_map.items():
             if emoji_clicked in classes[2].all_emoji_names():
