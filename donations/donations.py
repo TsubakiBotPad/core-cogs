@@ -69,6 +69,7 @@ class Donations(commands.Cog):
         self.support_guild = None
         self.donor_role = None
         self.patron_role = None
+        self.guest_role = None
 
     async def red_get_data_for_user(self, *, user_id):
         """Get a user's personal data."""
@@ -96,11 +97,12 @@ class Donations(commands.Cog):
 
     async def set_server_attributes(self):
         await self.bot.wait_until_ready()
-        drole, prole, server = self.settings.getDPS()
+        drole, prole, grole, server = self.settings.get_donor_config()
         self.support_guild = self.bot.get_guild(server)
         if self.support_guild:
             self.donor_role = self.support_guild.get_role(drole)
             self.patron_role = self.support_guild.get_role(prole)
+            self.guest_role = self.support_guild.get_role(grole)
         else:
             self.donor_role = self.patron_role = None
 
@@ -242,9 +244,10 @@ class Donations(commands.Cog):
 
     @donations.command()
     @checks.is_owner()
-    async def setup(self, ctx, donor_role: discord.Role, patron_role: discord.Role):
-        """Setup the Donor and Patron role from your Patreon enabled server."""
-        self.settings.setDPS(donor_role.id, patron_role.id, ctx.guild.id)
+    async def setup(self, ctx, donor_role: discord.Role, patron_role: discord.Role, guest_role: discord.Role):
+        """Set up the Donor and Patron role from your Patreon enabled server.
+        Guest role is for an honorary list of people to get donor features."""
+        self.settings.set_donor_config(donor_role.id, patron_role.id, guest_role.id, ctx.guild.id)
         await self.set_server_attributes()
         await ctx.tick()
 
@@ -343,7 +346,10 @@ class Donations(commands.Cog):
         if author is None:
             return False
         return (self.patron_role in author.roles or
-                (self.donor_role in author.roles and not only_patron))
+                (not only_patron and
+                 (self.donor_role in author.roles or
+                  self.guest_role in author.roles))
+                )
 
 
 class DonationsSettings(CogSettings):
@@ -353,7 +359,7 @@ class DonationsSettings(CogSettings):
             'custom_embeds': {},
             'disabled_servers': [],
             'insults_enabled': [],
-            'dps': (0, 0, None),
+            'donor_config': (0, 0, 0, None),
         }
         return config
 
@@ -423,12 +429,12 @@ class DonationsSettings(CogSettings):
             insults_enabled.remove(user_id)
             self.save_settings()
 
-    def setDPS(self, d, p, s):
-        self.bot_settings['dps'] = (d, p, s)
+    def set_donor_config(self, d, p, g, s):
+        self.bot_settings['donor_config'] = (d, p, g, s)
         self.save_settings()
 
-    def getDPS(self):
-        return self.bot_settings['dps']
+    def get_donor_config(self):
+        return self.bot_settings['donor_config']
 
     # GDPR Compliance Functions
     def getUserData(self, user_id):
